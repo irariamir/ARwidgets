@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Crown, X, Check, Sparkles, Flame, Clock, Smile, FileText, CheckSquare, Rocket } from 'lucide-react';
+import { Crown, X, Check, Flame, Clock, Smile, FileText, CheckSquare, Rocket } from 'lucide-react';
 
 export function VipModal({ isOpen, onClose }) {
   const [activeTab, setActiveTab] = useState('habits');
@@ -9,22 +9,22 @@ export function VipModal({ isOpen, onClose }) {
   const VIP_FEATURES = {
     growth: {
       title: 'بخش رشد و خودسازی پیشرفته',
-      desc: 'دسترسی نامحدود به تمامی پادکست‌های انگیزشی، کتاب‌های صوتی خلاصه شده و چالش‌های ۳۰ روزه ساخت انگیزه.',
+      desc: 'دسترسی به تمامی پادکست‌های انگیزشی، کتاب‌های صوتی خلاصه شده و چالش‌های ۳۰ روزه ساخت انگیزه.',
       icon: Rocket,
       perks: [
-        'پادکست‌های فوق‌العاده با کیفیت استودیویی',
+        'پادکست‌های انگیزشی با کیفیت بالا',
         'خلاصه کتاب‌های برتر دنیا در حوزه بهره‌وری',
-        'چالش‌های روزانه با جایزه XP'
+        'چالش‌های روزانه ساخت انگیزه و استمرار'
       ]
     },
     tasks: {
       title: 'مدیریت حرفه‌ای کارها و تسک‌ها',
-      desc: 'دسترسی به تمامی برچسب‌های رنگی، ماتریس آیزنهاور، زیرکارهای نامحدود و برنامه‌ریز هوش مصنوعی.',
+      desc: 'دسترسی به تمامی برچسب‌های رنگی، ماتریس آیزنهاور، زیرکارها و زمان‌بندی‌های اختصاصی.',
       icon: CheckSquare,
       perks: [
-        'برچسب‌ها و پرچم‌های اولویت رنگارنگ',
-        'زیرکارهای نامحدود برای هر تسک',
-        'برنامه‌ریزی هوشمند با هوش مصنوعی ARIAMIR'
+        'برچسب‌ها و پرچم‌های اولویت‌بندی رنگی',
+        'زیرکارهای نامحدود برای هر وظیفه',
+        'فیلترهای پیشرفته و دسته‌بندی موضوعی'
       ]
     },
     habits: {
@@ -32,29 +32,29 @@ export function VipModal({ isOpen, onClose }) {
       desc: 'طراحی عادت‌ها با پالت رنگ‌های متنوع، آیکون‌های اختصاصی و دوره‌های استمرار ۲۱، ۳۰ و ۴۰ روزه.',
       icon: Flame,
       perks: [
-        'پالت رنگ‌های نامحدود برای هر عادت',
+        'پالت رنگ‌های متنوع برای هر عادت',
         'آیکون‌های متنوع ورزشی، ذهن و کاری',
         'تحلیل زنجیره استمرار و گزارش هفتگی'
       ]
     },
     mood: {
       title: 'تحلیل پیشرفته وضعیت احساسات',
-      desc: 'ردیابی احساسات روزانه، سطح انرژی روانی و مشاهده نمودارهای روانشناختی هفتگی و ماهانه.',
+      desc: 'ردیابی احساسات روزانه، سطح انرژی روانی و مشاهده روند تغییرات روحی در طول زمان.',
       icon: Smile,
       perks: [
         '۵ تیپ احساسی با ایموجی‌های زنده',
-        'تحلیل همبستگی مود و بهره‌وری روزانه',
-        'دفترچه شکرگزاری و ثبت خاطرات'
+        'تحلیل سطح انرژی و شادابی روزانه',
+        'دفترچه یادداشت احساسات و خاطرات'
       ]
     },
     notes: {
-      title: 'یادداشت‌های نامحدود و ابری',
-      desc: 'فضای بی‌نهایت برای ثبت ایده‌ها، دسته‌بندی موضوعی و جستجوی آنی در متون.',
+      title: 'یادداشت‌های موضوعی و جستجوی آنی',
+      desc: 'فضای ذخیره‌سازی ایده‌ها، دسته‌بندی موضوعی و جستجوی سریع در متون.',
       icon: FileText,
       perks: [
         'دسته‌بندی‌های اختصاصی یادداشت‌ها',
         'جستجوی پیشرفته با سرعت بالا',
-        'پشتیبان‌گیری خودکار و بدون انقضا'
+        'پشتیبان‌گیری و ذخیره‌سازی ابری'
       ]
     },
     pomodoro: {
@@ -82,9 +82,9 @@ export function VipModal({ isOpen, onClose }) {
               <Crown className="w-7 h-7 fill-black" />
             </div>
             <div>
-              <h2 className="text-lg font-black text-white">طلایی شو! (VIP)</h2>
+              <h2 className="text-lg font-black text-white">طلایی شو!</h2>
               <p className="text-xs text-[#d1d5db]">
-                با اشتراک طلایی به تمامی امکانات زیر دسترسی داری:
+                امکانات ویژه اشتراک طلایی:
               </p>
             </div>
           </div>
@@ -146,23 +146,14 @@ export function VipModal({ isOpen, onClose }) {
           </div>
         </div>
 
-        {/* Corporate VIP Badge Notice */}
-        <div className="bg-[#192b22] border border-[#3ECF8E]/40 rounded-2xl p-3.5 flex items-center gap-3">
-          <Sparkles className="w-6 h-6 text-[#3ECF8E] shrink-0" />
-          <div className="text-xs text-white">
-            <span className="font-bold text-[#3ECF8E] block">هدیه ویژه ARIAMIR:</span>
-            <span>این اشتراک برای کلیه کاربران به صورت دائمی و ۱۰۰٪ رایگان فعال شده است.</span>
-          </div>
-        </div>
-
         {/* Bottom Button */}
-        <div>
+        <div className="pt-2">
           <button
             onClick={onClose}
             className="w-full py-3.5 rounded-2xl bg-[#10b981] hover:bg-[#0ea372] text-black font-extrabold text-sm flex items-center justify-center gap-2 active:scale-98 transition-all shadow-lg shadow-[#10b981]/25"
           >
             <Check className="w-5 h-5 stroke-[3]" />
-            <span>متوجه شدم (دسترسی نامحدود فعال است)</span>
+            <span>متوجه شدم</span>
           </button>
         </div>
       </div>

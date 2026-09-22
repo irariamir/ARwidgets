@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toPersianDigits } from '../utils/jalali';
 import { audioEngine } from '../utils/audioEngine';
 import {
@@ -9,21 +9,20 @@ import {
   HelpCircle,
   X,
   Check,
-  Volume2,
-  Crown,
-  Download
+  Crown
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 const MUSIC_OPTIONS = [
   { id: 'none', title: 'بدون موزیک', isVip: false },
-  { id: 'gentle', title: 'ملایم (پیانو الکتریک لوفای)', isVip: false },
-  { id: 'positive', title: 'مثبت اندیشی (امواج آرامش‌بخش)', isVip: true },
-  { id: 'flute', title: 'فلوت شرقی (مدیتیشن ذهن)', isVip: true },
-  { id: 'peace', title: 'آرامش ذهن (فرکانس تتا فوکوس)', isVip: true },
-  { id: 'waves', title: 'موج و ساحل اقیانوس', isVip: true },
-  { id: 'rain', title: 'باران ملایم پاییزی', isVip: true },
-  { id: 'forest', title: 'جنگل و صدای پرندگان', isVip: true }
+  { id: 'gentle', title: 'ملایم', isVip: false },
+  { id: 'positive', title: 'مثبت اندیشی', isVip: true },
+  { id: 'flute', title: 'فلوت شرقی', isVip: true },
+  { id: 'peace', title: 'آرامش ذهن', isVip: true },
+  { id: 'waves', title: 'موج', isVip: true },
+  { id: 'sea', title: 'دریا', isVip: true },
+  { id: 'rain', title: 'باران', isVip: true },
+  { id: 'forest', title: 'جنگل', isVip: true }
 ];
 
 export function PomodoroView({ onRewardXp }) {
@@ -106,9 +105,6 @@ export function PomodoroView({ onRewardXp }) {
     return `${toPersianDigits(padM)}:${toPersianDigits(padS)}`;
   };
 
-  const progressPercent = ((totalTime - timeLeft) / totalTime) * 100;
-  const strokeDashoffset = 754 - (754 * progressPercent) / 100;
-
   return (
     <div className="pb-28 px-4 pt-3 max-w-md mx-auto space-y-6 select-none">
       {/* Title */}
@@ -116,7 +112,7 @@ export function PomodoroView({ onRewardXp }) {
         <h1 className="text-xl font-bold text-white">پومودورو</h1>
       </div>
 
-      {/* 3 Mode Switcher Pills (Matching Lemoni scene_010.jpg) */}
+      {/* 3 Mode Switcher Pills (Matching Lemoni tools_022.jpg) */}
       <div className="grid grid-cols-3 gap-2 bg-[#191a1e] p-1.5 rounded-2xl border border-[#272a31]">
         <button
           onClick={() => handleModeChange('longBreak')}
@@ -152,10 +148,9 @@ export function PomodoroView({ onRewardXp }) {
         </button>
       </div>
 
-      {/* Glowing Large Green Circular Timer Ring (Matching Lemoni tools_022.jpg) */}
+      {/* Glowing Circular Timer Ring */}
       <div className="relative flex items-center justify-center py-6">
         <svg className="w-64 h-64 -rotate-90 transform" viewBox="0 0 260 260">
-          {/* Background Track */}
           <circle
             cx="130"
             cy="130"
@@ -164,7 +159,6 @@ export function PomodoroView({ onRewardXp }) {
             strokeWidth="12"
             fill="transparent"
           />
-          {/* Green Progress Ring */}
           <circle
             cx="130"
             cy="130"
@@ -179,33 +173,31 @@ export function PomodoroView({ onRewardXp }) {
           />
         </svg>
 
-        {/* Digital Time Text */}
+        {/* Digital Time */}
         <div className="absolute flex flex-col items-center justify-center">
           <span className="text-5xl font-black text-white tracking-wider font-mono">
             {formatTime(timeLeft)}
           </span>
           <span className="text-xs text-[#3ECF8E] font-medium mt-1">
-            {mode === 'focus' ? 'تمرکز عمیق' : 'استراحت و ریکاوری'}
+            {mode === 'focus' ? 'تمرکز عمیق' : 'استراحت'}
           </span>
         </div>
       </div>
 
-      {/* Controls: Reset, Play/Pause, Music */}
+      {/* Controls */}
       <div className="flex items-center justify-center gap-6">
-        {/* Reset Button */}
+        {/* Reset */}
         <button
           onClick={handleReset}
           className="w-12 h-12 rounded-2xl bg-[#1c1e22] border border-[#2a2d33] flex items-center justify-center text-[#9ca3af] hover:text-white active:scale-95 transition-all"
-          title="تنظیم مجدد"
         >
           <RotateCcw className="w-5 h-5" />
         </button>
 
-        {/* Play/Pause Button (Large Green Circle) */}
+        {/* Play/Pause */}
         <button
           onClick={handleTogglePlay}
           className="w-16 h-16 rounded-full bg-[#10b981] hover:bg-[#0ea372] active:scale-95 text-black flex items-center justify-center shadow-lg shadow-[#10b981]/30 transition-all cursor-pointer"
-          title={isRunning ? 'توقف' : 'شروع'}
         >
           {isRunning ? (
             <Pause className="w-7 h-7 fill-current stroke-[2.5]" />
@@ -214,7 +206,7 @@ export function PomodoroView({ onRewardXp }) {
           )}
         </button>
 
-        {/* Music Picker Button */}
+        {/* Music Picker */}
         <button
           onClick={() => setShowMusicSheet(true)}
           className={`w-12 h-12 rounded-2xl border flex items-center justify-center active:scale-95 transition-all ${
@@ -222,13 +214,12 @@ export function PomodoroView({ onRewardXp }) {
               ? 'bg-[#192b22] border-[#3ECF8E] text-[#3ECF8E]'
               : 'bg-[#1c1e22] border-[#2a2d33] text-[#9ca3af] hover:text-white'
           }`}
-          title="موزیک همراه پومودورو"
         >
           <Music className="w-5 h-5" />
         </button>
       </div>
 
-      {/* Pomodoro Guide Link Button (Matching Lemoni scene_010.jpg) */}
+      {/* Guide Link */}
       <div className="pt-2 text-center">
         <button
           onClick={() => setShowGuideSheet(true)}

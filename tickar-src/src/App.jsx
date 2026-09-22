@@ -7,7 +7,7 @@ import { ToolsView } from './components/ToolsView';
 import { ProfileView } from './components/ProfileView';
 import { VipModal } from './components/VipModal';
 import { NotificationGuideModal } from './components/NotificationGuideModal';
-import { AiAssistantModal } from './components/AiAssistantModal';
+import { InboxModal } from './components/InboxModal';
 import { loadData, saveData, KEYS } from './utils/storage';
 import { audioEngine } from './utils/audioEngine';
 
@@ -16,7 +16,7 @@ export function App() {
 
   // Navigation State
   const [activeTab, setActiveTab] = useState('tasks'); // 'tasks' | 'growth' | 'tools' | 'profile'
-  const [subTool, setSubTool] = useState(null); // null | 'habits' | 'pomodoro' | 'mood' | 'notes' | 'calendar' | 'matrix'
+  const [subTool, setSubTool] = useState(null); // null | 'habits' | 'pomodoro' | 'mood' | 'notes' | 'calendar'
 
   // Data State
   const [tasks, setTasks] = useState(initialData.tasks || []);
@@ -30,8 +30,7 @@ export function App() {
   // Modals
   const [isVipModalOpen, setIsVipModalOpen] = useState(false);
   const [isNotificationGuideOpen, setIsNotificationGuideOpen] = useState(false);
-  const [isAiPlannerOpen, setIsAiPlannerOpen] = useState(false);
-  const [quickAddTrigger, setQuickAddTrigger] = useState(0);
+  const [isInboxOpen, setIsInboxOpen] = useState(false);
 
   // Sync to LocalStorage
   useEffect(() => { saveData(KEYS.TASKS, tasks); }, [tasks]);
@@ -152,21 +151,13 @@ export function App() {
     });
   };
 
-  // AI Task Generation handler
-  const handleAddAiTasks = (newTasksList) => {
-    setTasks([...newTasksList, ...tasks]);
-    handleRewardXp(newTasksList.length * 25);
-    setActiveTab('tasks');
-  };
-
   return (
     <div className="min-h-screen bg-[#111214] text-[#fafafa] flex flex-col font-body antialiased selection:bg-[#3ECF8E]/30 selection:text-white">
-      {/* Top Navigation Header (Matching Lemoni exact header) */}
+      {/* Top Header */}
       <Navbar
-        activeTab={activeTab}
         currentSubView={subTool}
         onBack={handleBackToHub}
-        onOpenAiAssistant={() => setIsAiPlannerOpen(true)}
+        onOpenInbox={() => setIsInboxOpen(true)}
         onOpenVipModal={() => setIsVipModalOpen(true)}
       />
 
@@ -180,7 +171,6 @@ export function App() {
             onUpdateTask={handleUpdateTask}
             onDeleteTask={handleDeleteTask}
             onToggleTask={handleToggleTask}
-            onOpenAiPlanner={() => setIsAiPlannerOpen(true)}
           />
         )}
 
@@ -214,14 +204,13 @@ export function App() {
             onToggleTask={handleToggleTask}
             categories={categories}
             onRewardXp={handleRewardXp}
-            onOpenAiPlanner={() => setIsAiPlannerOpen(true)}
-            onOpenVipModal={() => setIsVipModalOpen(true)}
           />
         )}
 
         {activeTab === 'profile' && (
           <ProfileView
             userStats={userStats}
+            onUpdateUserStats={setUserStats}
             settings={settings}
             onUpdateSettings={setSettings}
             onOpenVipModal={() => setIsVipModalOpen(true)}
@@ -230,14 +219,13 @@ export function App() {
         )}
       </main>
 
-      {/* Bottom Floating Navigation (Matching Lemoni 4 Tabs + Floating Action Button) */}
+      {/* Bottom Floating Navigation (Matching Lemoni 4 Tabs + Floating Center Button) */}
       <BottomNav
         activeTab={activeTab}
         onTabChange={handleTabChange}
         onQuickAddClick={() => {
           setActiveTab('tasks');
           setSubTool(null);
-          // Trigger task modal on Tasks tab
           const evt = new CustomEvent('open-quick-add');
           window.dispatchEvent(evt);
         }}
@@ -254,10 +242,9 @@ export function App() {
         onClose={() => setIsNotificationGuideOpen(false)}
       />
 
-      <AiAssistantModal
-        isOpen={isAiPlannerOpen}
-        onClose={() => setIsAiPlannerOpen(false)}
-        onAddGeneratedTasks={handleAddAiTasks}
+      <InboxModal
+        isOpen={isInboxOpen}
+        onClose={() => setIsInboxOpen(false)}
       />
     </div>
   );

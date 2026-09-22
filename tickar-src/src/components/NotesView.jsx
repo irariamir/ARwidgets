@@ -5,11 +5,9 @@ import {
   Search,
   Plus,
   Clock,
-  Folder,
   Trash2,
-  Edit2,
-  X,
   Check,
+  X,
   FileText
 } from 'lucide-react';
 
@@ -43,14 +41,14 @@ export function NotesView({ notes, onAddNote, onUpdateNote, onDeleteNote }) {
     if (editingNote) {
       onUpdateNote({
         ...editingNote,
-        title: title.trim() || 'یادداشت بدون عنوان',
+        title: title.trim() || 'یادداشت جدید',
         content: content.trim(),
         category
       });
     } else {
       const newNote = {
         id: 'n-' + Date.now(),
-        title: title.trim() || 'یادداشت بدون عنوان',
+        title: title.trim() || 'یادداشت جدید',
         content: content.trim(),
         category,
         date: jalali.dateString,
@@ -82,7 +80,7 @@ export function NotesView({ notes, onAddNote, onUpdateNote, onDeleteNote }) {
 
   return (
     <div className="pb-28 px-4 pt-3 max-w-md mx-auto space-y-4 select-none">
-      {/* Title */}
+      {/* Title (Matching Lemoni sec3_020.jpg: یادداشت‌ها) */}
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-white flex items-center gap-2">
           <span className="w-1.5 h-5 rounded-full bg-[#3ECF8E]"></span>
@@ -97,7 +95,7 @@ export function NotesView({ notes, onAddNote, onUpdateNote, onDeleteNote }) {
         </button>
       </div>
 
-      {/* Category Filter Pills (Matching Lemoni sec3_020.jpg) */}
+      {/* Filter Category Pills (Matching Lemoni sec3_020.jpg) */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
         <button
           onClick={() => setIsCreatingNote(true)}
@@ -129,25 +127,25 @@ export function NotesView({ notes, onAddNote, onUpdateNote, onDeleteNote }) {
         </button>
 
         <button
-          onClick={() => setSelectedCategory('ariamir')}
+          onClick={() => setSelectedCategory('personal')}
           className={`px-3.5 py-1.5 rounded-xl font-medium shrink-0 transition-all ${
-            selectedCategory === 'ariamir'
+            selectedCategory === 'personal'
               ? 'bg-[#10b981] text-black font-bold shadow-md shadow-[#10b981]/20'
               : 'bg-[#1c1e22] text-[#9ca3af] hover:text-white border border-[#2a2d33]'
           }`}
         >
-          ARIAMIR
+          شخصی
         </button>
 
         <button
-          onClick={() => setSelectedCategory('study')}
+          onClick={() => setSelectedCategory('work')}
           className={`px-3.5 py-1.5 rounded-xl font-medium shrink-0 transition-all ${
-            selectedCategory === 'study'
+            selectedCategory === 'work'
               ? 'bg-[#10b981] text-black font-bold shadow-md shadow-[#10b981]/20'
               : 'bg-[#1c1e22] text-[#9ca3af] hover:text-white border border-[#2a2d33]'
           }`}
         >
-          مطالعه
+          کاری
         </button>
       </div>
 
@@ -157,7 +155,7 @@ export function NotesView({ notes, onAddNote, onUpdateNote, onDeleteNote }) {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="جستجو در متن یا عنوان یادداشت‌ها..."
+          placeholder="جستجو"
           className="w-full bg-[#191a1e] border border-[#272a31] focus:border-[#3ECF8E] rounded-2xl py-2.5 pr-10 pl-4 text-xs text-white placeholder-[#6b7280] outline-none transition-all"
         />
         <Search className="w-4 h-4 text-[#8b929e] absolute right-3.5 top-3" />
@@ -190,7 +188,7 @@ export function NotesView({ notes, onAddNote, onUpdateNote, onDeleteNote }) {
         {filteredNotes.length === 0 && (
           <div className="text-center py-12 text-[#6b7280] space-y-2">
             <FileText className="w-8 h-8 mx-auto text-[#4b5563]" />
-            <p className="text-xs">یادداشتی با این مشخصات یافت نشد.</p>
+            <p className="text-xs">یادداشتی وجود ندارد.</p>
           </div>
         )}
       </div>
@@ -215,35 +213,14 @@ export function NotesView({ notes, onAddNote, onUpdateNote, onDeleteNote }) {
 
             {/* Title */}
             <div>
-              <label className="text-xs text-[#9ca3af] block mb-1">عنوان یادداشت</label>
+              <label className="text-xs text-[#9ca3af] block mb-1">عنوان</label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="عنوان..."
+                placeholder="عنوان یادداشت..."
                 className="w-full bg-[#202227] border border-[#2d313a] focus:border-[#3ECF8E] rounded-2xl px-4 py-2.5 text-sm text-white placeholder-[#6b7280] outline-none"
               />
-            </div>
-
-            {/* Category */}
-            <div>
-              <label className="text-xs text-[#9ca3af] block mb-1">دسته‌بندی:</label>
-              <div className="flex items-center gap-2 text-xs">
-                {['none', 'ariamir', 'study'].map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => setCategory(c)}
-                    className={`px-3 py-1.5 rounded-xl font-medium transition-all ${
-                      category === c
-                        ? 'bg-[#10b981] text-black font-bold'
-                        : 'bg-[#202227] text-[#9ca3af] border border-[#2d313a]'
-                    }`}
-                  >
-                    {c === 'none' ? 'بدون دسته‌بندی' : c === 'ariamir' ? 'ARIAMIR' : 'مطالعه'}
-                  </button>
-                ))}
-              </div>
             </div>
 
             {/* Content */}
@@ -252,7 +229,7 @@ export function NotesView({ notes, onAddNote, onUpdateNote, onDeleteNote }) {
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="ایده‌ها، برنامه‌ها و یادداشت‌هایت را اینجا بنویس..."
+                placeholder="متن یادداشت را اینجا بنویسید..."
                 rows={6}
                 className="w-full bg-[#202227] border border-[#2d313a] focus:border-[#3ECF8E] rounded-2xl p-3 text-xs text-white placeholder-[#6b7280] outline-none leading-relaxed"
               />

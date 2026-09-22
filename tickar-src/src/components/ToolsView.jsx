@@ -1,16 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Flame,
   Clock,
   Smile,
   FileText,
   Calendar,
-  Grid,
-  Sparkles,
   ChevronLeft,
-  Crown,
-  Activity,
-  Layers
+  Crown
 } from 'lucide-react';
 import { HabitMakerView } from './HabitMakerView';
 import { PomodoroView } from './PomodoroView';
@@ -37,11 +33,8 @@ export function ToolsView({
   onDeleteTask,
   onToggleTask,
   categories,
-  onRewardXp,
-  onOpenAiPlanner,
-  onOpenVipModal
+  onRewardXp
 }) {
-  // If a subtool is selected, render that subtool directly
   if (subTool === 'habits') {
     return (
       <HabitMakerView
@@ -90,10 +83,10 @@ export function ToolsView({
     {
       id: 'habits',
       title: 'عادت‌ساز (ردیاب استمرار)',
-      subtitle: 'ساخت عادات مثبت و شکستن زنجیره تنبلی با ثبت روزانه',
+      subtitle: 'ساخت عادات مثبت و ثبت روزانه پایبندی به اهداف',
       icon: Flame,
       color: '#f59e0b',
-      badge: 'محبوب‌ترین'
+      badge: 'استمرار'
     },
     {
       id: 'pomodoro',
@@ -101,7 +94,7 @@ export function ToolsView({
       subtitle: 'سشن‌های تمرکز عمیق ۲۵ دقیقه‌ای همراه با امواج ذهنی',
       icon: Clock,
       color: '#10b981',
-      badge: 'تکنیک طلایی'
+      badge: 'تمرکز'
     },
     {
       id: 'mood',
@@ -114,10 +107,10 @@ export function ToolsView({
     {
       id: 'notes',
       title: 'یادداشت‌ها و ایده‌های سریع',
-      subtitle: 'فضای ذخیره‌سازی نامحدود افکار و برنامه‌های کاری',
+      subtitle: 'فضای ذخیره‌سازی افکار، جلسات و برنامه‌های کاری',
       icon: FileText,
       color: '#3b82f6',
-      badge: 'کاربردی'
+      badge: 'یادداشت'
     },
     {
       id: 'calendar',
@@ -135,36 +128,12 @@ export function ToolsView({
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-white flex items-center gap-2">
           <span className="w-1.5 h-5 rounded-full bg-[#3ECF8E]"></span>
-          ابزارهای رشد و بهره‌وری
+          ابزارها
         </h1>
         <span className="text-xs text-[#f59e0b] bg-[#f59e0b]/10 px-2.5 py-1 rounded-xl flex items-center gap-1 font-bold">
           <Crown className="w-3.5 h-3.5" />
-          VIP رایگان
+          جعبه ابزار
         </span>
-      </div>
-
-      {/* AI Assistant Banner */}
-      <div
-        onClick={onOpenAiPlanner}
-        className="bg-gradient-to-l from-[#182a20] via-[#14201a] to-[#191a1e] border border-[#3ECF8E]/30 rounded-3xl p-4.5 cursor-pointer active:scale-98 transition-all shadow-md flex items-center justify-between group"
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-[#3ECF8E] text-black flex items-center justify-center shadow-lg shadow-[#3ECF8E]/30 group-hover:scale-105 transition-transform">
-            <Sparkles className="w-6 h-6" />
-          </div>
-          <div className="space-y-0.5">
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-bold text-white">دستیار هوشمند تیک‌آر (AI)</h3>
-              <span className="text-[10px] bg-[#3ECF8E]/20 text-[#3ECF8E] px-2 py-0.5 rounded-full font-bold">
-                ARIAMIR AI
-              </span>
-            </div>
-            <p className="text-xs text-[#9ca3af]">
-              برنامه‌ریزی خودکار اهداف و تبدیل به گام‌های عملیاتی
-            </p>
-          </div>
-        </div>
-        <ChevronLeft className="w-5 h-5 text-[#3ECF8E]" />
       </div>
 
       {/* Tools List */}
@@ -175,7 +144,7 @@ export function ToolsView({
             <div
               key={tool.id}
               onClick={() => onSelectSubTool(tool.id)}
-              className="bg-[#191a1e] hover:bg-[#202227] border border-[#272a31] hover:border-[#3ECF8E]/30 rounded-3xl p-4 cursor-pointer transition-all shadow-sm flex items-center justify-between group"
+              className="bg-[#191a1e] hover:bg-[#202227] border border-[#272a31] hover:border-[#3ECF8E]/30 rounded-3xl p-4.5 cursor-pointer transition-all shadow-sm flex items-center justify-between group"
             >
               <div className="flex items-center gap-3.5">
                 <div

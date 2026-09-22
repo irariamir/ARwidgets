@@ -1,6 +1,6 @@
 /**
  * Procedural Web Audio Engine for TickAR & ARIAMIR
- * High-fidelity real-time soundscapes, binaural tones, and interactive sound effects
+ * High-fidelity real-time soundscapes and interactive sound effects
  */
 
 class SoundscapesEngine {
@@ -8,7 +8,7 @@ class SoundscapesEngine {
     this.ctx = null;
     this.activeNodes = {};
     this.masterGain = null;
-    this.currentMusicType = null;
+    this.lofiInterval = null;
   }
 
   init() {
@@ -16,7 +16,7 @@ class SoundscapesEngine {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       this.ctx = new AudioContext();
       this.masterGain = this.ctx.createGain();
-      this.masterGain.gain.setValueAtTime(0.85, this.ctx.currentTime);
+      this.masterGain.gain.setValueAtTime(0.8, this.ctx.currentTime);
       this.masterGain.connect(this.ctx.destination);
     }
     if (this.ctx.state === 'suspended') {
@@ -44,10 +44,10 @@ class SoundscapesEngine {
     return buffer;
   }
 
-  // Rain Sound
+  // Ambient: Rain
   startRain(volume = 0.5) {
     this.init();
-    this.stop('rain');
+    if (this.activeNodes['rain']) this.stop('rain');
 
     const noise = this.ctx.createBufferSource();
     noise.buffer = this.createPinkNoiseBuffer(6);
@@ -68,10 +68,10 @@ class SoundscapesEngine {
     this.activeNodes['rain'] = { source: noise, gain: gain };
   }
 
-  // Ocean Waves
+  // Ambient: Ocean Waves
   startOcean(volume = 0.5) {
     this.init();
-    this.stop('ocean');
+    if (this.activeNodes['ocean']) this.stop('ocean');
 
     const noise = this.ctx.createBufferSource();
     noise.buffer = this.createPinkNoiseBuffer(6);
@@ -85,8 +85,9 @@ class SoundscapesEngine {
     const gain = this.ctx.createGain();
     gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
 
+    // LFO for wave movement
     const lfo = this.ctx.createOscillator();
-    lfo.frequency.setValueAtTime(0.12, this.ctx.currentTime);
+    lfo.frequency.setValueAtTime(0.12, this.ctx.currentTime); // Wave period ~8s
     const lfoGain = this.ctx.createGain();
     lfoGain.gain.setValueAtTime(volume * 0.5, this.ctx.currentTime);
 
@@ -103,11 +104,12 @@ class SoundscapesEngine {
     this.activeNodes['ocean'] = { source: noise, lfo: lfo, gain: gain };
   }
 
-  // Forest & Birds
+  // Ambient: Forest & Birds
   startForest(volume = 0.5) {
     this.init();
-    this.stop('forest');
+    if (this.activeNodes['forest']) this.stop('forest');
 
+    // Wind/leaves
     const wind = this.ctx.createBufferSource();
     wind.buffer = this.createPinkNoiseBuffer(6);
     wind.loop = true;
@@ -124,6 +126,7 @@ class SoundscapesEngine {
     windGain.connect(this.masterGain);
     wind.start();
 
+    // Procedural bird chirps interval
     const birdInterval = setInterval(() => {
       if (!this.activeNodes['forest']) return;
       if (Math.random() > 0.4) {
@@ -153,11 +156,83 @@ class SoundscapesEngine {
     osc.stop(this.ctx.currentTime + 0.22);
   }
 
-  // Lo-Fi Electric Piano Chords ("ملایم")
+  // Ambient: Campfire / Fireplace
+  startFire(volume = 0.5) {
+    this.init();
+    if (this.activeNodes['fire']) this.stop('fire');
+
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = this.createPinkNoiseBuffer(5);
+    noise.loop = true;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(320, this.ctx.currentTime);
+
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(volume * 0.45, this.ctx.currentTime);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.masterGain);
+    noise.start();
+
+    // Random crackle clicks
+    const crackleInterval = setInterval(() => {
+      if (!this.activeNodes['fire']) return;
+      if (Math.random() > 0.3) {
+        this.playCrackle(volume * 0.4);
+      }
+    }, 350);
+
+    this.activeNodes['fire'] = { source: noise, gain: gain, interval: crackleInterval };
+  }
+
+  playCrackle(vol = 0.2) {
+    if (!this.ctx) return;
+    const click = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    click.type = 'triangle';
+    click.frequency.setValueAtTime(600 + Math.random() * 1200, this.ctx.currentTime);
+    gain.gain.setValueAtTime(vol * (0.3 + Math.random() * 0.7), this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.04);
+    click.connect(gain);
+    gain.connect(this.masterGain);
+    click.start();
+    click.stop(this.ctx.currentTime + 0.05);
+  }
+
+  // Ambient: Coffee Shop / Cafe Ambiance
+  startCafe(volume = 0.5) {
+    this.init();
+    if (this.activeNodes['cafe']) this.stop('cafe');
+
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = this.createPinkNoiseBuffer(6);
+    noise.loop = true;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(750, this.ctx.currentTime);
+    filter.Q.setValueAtTime(2.0, this.ctx.currentTime);
+
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(volume * 0.5, this.ctx.currentTime);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.masterGain);
+    noise.start();
+
+    this.activeNodes['cafe'] = { source: noise, gain: gain };
+  }
+
+  // Ambient: Lo-Fi Chords (Synthesized Electric Piano Chords)
   startLofi(volume = 0.5) {
     this.init();
-    this.stop('lofi');
+    if (this.activeNodes['lofi']) this.stop('lofi');
 
+    // Chords progression: Cmaj9, Am9, Dm9, G13
     const chords = [
       [261.63, 329.63, 392.00, 493.88, 587.33], // Cmaj9
       [220.00, 261.63, 329.63, 392.00, 493.88], // Am9
@@ -201,143 +276,10 @@ class SoundscapesEngine {
     this.activeNodes['lofi'] = { interval: chordInterval, isPlaying: true };
   }
 
-  // Positive Thinking Ambient ("مثبت اندیشی")
-  startPositive(volume = 0.5) {
-    this.init();
-    this.stop('positive');
-
-    const chords = [
-      [293.66, 369.99, 440.00, 587.33], // D maj
-      [329.63, 415.30, 493.88, 659.25], // E maj
-      [369.99, 440.00, 554.37, 739.99], // F# min
-      [392.00, 493.88, 587.33, 783.99]  // G maj
-    ];
-    let step = 0;
-
-    const playNextPositive = () => {
-      if (!this.activeNodes['positive']) return;
-      const currentChord = chords[step % chords.length];
-      step++;
-
-      currentChord.forEach((freq, idx) => {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-
-        const now = this.ctx.currentTime;
-        gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime((volume * 0.15) / currentChord.length, now + 0.8 + idx * 0.1);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 4.5);
-
-        osc.connect(gain);
-        gain.connect(this.masterGain);
-
-        osc.start(now);
-        osc.stop(now + 4.8);
-      });
-    };
-
-    playNextPositive();
-    const interval = setInterval(playNextPositive, 4500);
-    this.activeNodes['positive'] = { interval };
-  }
-
-  // Eastern Flute Ambient ("فلوت شرقی")
-  startFlute(volume = 0.5) {
-    this.init();
-    this.stop('flute');
-
-    // Drone note (D3)
-    const droneOsc = this.ctx.createOscillator();
-    const droneGain = this.ctx.createGain();
-    droneOsc.type = 'sawtooth';
-    droneOsc.frequency.setValueAtTime(146.83, this.ctx.currentTime);
-
-    const droneFilter = this.ctx.createBiquadFilter();
-    droneFilter.type = 'lowpass';
-    droneFilter.frequency.setValueAtTime(280, this.ctx.currentTime);
-
-    droneGain.gain.setValueAtTime(volume * 0.12, this.ctx.currentTime);
-    droneOsc.connect(droneFilter);
-    droneFilter.connect(droneGain);
-    droneGain.connect(this.masterGain);
-    droneOsc.start();
-
-    // Flute melody notes (D minor pentatonic / Bayati scale)
-    const notes = [293.66, 329.63, 349.23, 440.00, 523.25, 587.33, 659.25];
-    const fluteInterval = setInterval(() => {
-      if (!this.activeNodes['flute']) return;
-      const freq = notes[Math.floor(Math.random() * notes.length)];
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-
-      const now = this.ctx.currentTime;
-      gain.gain.setValueAtTime(0, now);
-      gain.gain.linearRampToValueAtTime(volume * 0.18, now + 0.4);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 2.8);
-
-      osc.connect(gain);
-      gain.connect(this.masterGain);
-
-      osc.start(now);
-      osc.stop(now + 3.0);
-    }, 2400);
-
-    this.activeNodes['flute'] = { source: droneOsc, gain: droneGain, interval: fluteInterval };
-  }
-
-  // Mind Peace / Theta Binaural Wave ("آرامش ذهن")
-  startPeace(volume = 0.5) {
-    this.init();
-    this.stop('peace');
-
-    // Base carrier: 200 Hz, Beat: 6 Hz (Theta wave for deep focus)
-    const leftOsc = this.ctx.createOscillator();
-    const rightOsc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-
-    leftOsc.type = 'sine';
-    rightOsc.type = 'sine';
-    leftOsc.frequency.setValueAtTime(216, this.ctx.currentTime);
-    rightOsc.frequency.setValueAtTime(222, this.ctx.currentTime);
-
-    gain.gain.setValueAtTime(volume * 0.16, this.ctx.currentTime);
-
-    leftOsc.connect(gain);
-    rightOsc.connect(gain);
-    gain.connect(this.masterGain);
-
-    leftOsc.start();
-    rightOsc.start();
-
-    this.activeNodes['peace'] = { sources: [leftOsc, rightOsc], gain };
-  }
-
-  // Play Pomodoro Music Mode by ID
-  playPomodoroMusic(musicId, volume = 0.5) {
-    this.stopAll();
-    this.currentMusicType = musicId;
-
-    if (!musicId || musicId === 'none') return;
-
-    if (musicId === 'gentle' || musicId === 'lofi') {
-      this.startLofi(volume);
-    } else if (musicId === 'positive') {
-      this.startPositive(volume);
-    } else if (musicId === 'flute') {
-      this.startFlute(volume);
-    } else if (musicId === 'peace') {
-      this.startPeace(volume);
-    } else if (musicId === 'waves' || musicId === 'sea') {
-      this.startOcean(volume);
-    } else if (musicId === 'rain') {
-      this.startRain(volume);
-    } else if (musicId === 'forest') {
-      this.startForest(volume);
+  // Set individual volume
+  setVolume(type, volume) {
+    if (this.activeNodes[type] && this.activeNodes[type].gain) {
+      this.activeNodes[type].gain.gain.setValueAtTime(volume * 0.6, this.ctx.currentTime);
     }
   }
 
@@ -346,11 +288,6 @@ class SoundscapesEngine {
     if (this.activeNodes[type]) {
       if (this.activeNodes[type].source) {
         try { this.activeNodes[type].source.stop(); } catch(e){}
-      }
-      if (this.activeNodes[type].sources) {
-        this.activeNodes[type].sources.forEach(s => {
-          try { s.stop(); } catch(e){}
-        });
       }
       if (this.activeNodes[type].lfo) {
         try { this.activeNodes[type].lfo.stop(); } catch(e){}
@@ -365,13 +302,14 @@ class SoundscapesEngine {
   // Stop all ambient
   stopAll() {
     Object.keys(this.activeNodes).forEach((k) => this.stop(k));
-    this.currentMusicType = null;
   }
 
   // Sound Effects: Task Complete Ding
   playTaskComplete() {
     this.init();
     const now = this.ctx.currentTime;
+    
+    // Two-tone bell (E5 -> B5)
     [659.25, 987.77].forEach((freq, i) => {
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();

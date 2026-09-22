@@ -1,17 +1,12 @@
 import React, { useState } from 'react';
-import { toPersianDigits, getCurrentJalaliDate, PERSIAN_DAY_NAMES_SHORT } from '../utils/jalali';
+import { toPersianDigits, getCurrentJalaliDate } from '../utils/jalali';
 import { audioEngine } from '../utils/audioEngine';
 import {
   Plus,
   Flame,
   Check,
   X,
-  Clock,
-  Calendar,
-  Sparkles,
   Crown,
-  ChevronLeft,
-  Trash2,
   Info
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -39,7 +34,6 @@ export function HabitMakerView({
   const jalali = getCurrentJalaliDate();
   const todayStr = jalali.dateString;
 
-  // Week days label array for 7 days
   const weekDayLabels = ['امروز', 'دیروز', 'ج', 'پ', 'چ', 'س', 'د'];
 
   const handleToggleDay = (habitId, dayOffset, e) => {
@@ -67,7 +61,7 @@ export function HabitMakerView({
       streak: 1,
       targetDuration: parseInt(targetDuration, 10) || 21,
       reminderTime,
-      completedDays: [0], // 0 means today is checked
+      completedDays: [0],
       completedDates: [todayStr],
       createdAt: Date.now()
     };
@@ -88,12 +82,12 @@ export function HabitMakerView({
   };
 
   return (
-    <div className="pb-28 px-4 pt-3 max-w-md mx-auto space-y-4">
+    <div className="pb-28 px-4 pt-3 max-w-md mx-auto space-y-4 select-none">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-white flex items-center gap-2">
           <span className="w-1.5 h-5 rounded-full bg-[#3ECF8E]"></span>
-          عادت‌ساز (ردیاب استمرار)
+          عادت‌ساز
         </h1>
         <button
           onClick={() => setIsCreatingHabit(true)}
@@ -104,7 +98,7 @@ export function HabitMakerView({
         </button>
       </div>
 
-      {/* Habits List */}
+      {/* Habits List (Matching Lemoni scene_009.jpg) */}
       <div className="space-y-3">
         {habits.map((habit) => {
           const isDoneToday = habit.completedDates?.includes(todayStr) || (habit.completedDays && habit.completedDays.includes(0));
@@ -113,7 +107,7 @@ export function HabitMakerView({
               key={habit.id}
               className="bg-[#191a1e] border border-[#272a31] rounded-3xl p-4.5 space-y-3.5 shadow-md"
             >
-              {/* Card Top: Icon, Name, Streak Count */}
+              {/* Card Top */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div
@@ -140,7 +134,7 @@ export function HabitMakerView({
                 </div>
               </div>
 
-              {/* Card Bottom: 7 Squircle Check-in Boxes (Matching Lemoni scene_009.jpg) */}
+              {/* Card Bottom: 7 Squircle Boxes */}
               <div className="grid grid-cols-7 gap-1.5 pt-1">
                 {weekDayLabels.map((label, idx) => {
                   const isChecked = habit.completedDays ? habit.completedDays.includes(idx) : (idx === 0 && isDoneToday);
@@ -188,7 +182,7 @@ export function HabitMakerView({
               </button>
             </div>
 
-            {/* Title Input with (x) clear */}
+            {/* Title */}
             <div>
               <label className="text-xs text-[#9ca3af] block mb-1.5">عنوان</label>
               <div className="relative">
@@ -212,15 +206,15 @@ export function HabitMakerView({
               </div>
             </div>
 
-            {/* Question Input */}
+            {/* Question */}
             <div>
-              <label className="text-xs text-[#9ca3af] block mb-1.5">سوال ثبت روزانه؟</label>
+              <label className="text-xs text-[#9ca3af] block mb-1.5">سوال؟</label>
               <div className="relative">
                 <input
                   type="text"
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
-                  placeholder="آیا امروز این کار را انجام دادی؟"
+                  placeholder="بله"
                   className="w-full bg-[#202227] border border-[#2d313a] focus:border-[#3ECF8E] rounded-2xl px-4 py-3 text-sm text-white placeholder-[#6b7280] outline-none transition-all pl-10"
                 />
                 {question && (
@@ -235,9 +229,9 @@ export function HabitMakerView({
               </div>
             </div>
 
-            {/* Colors with VIP Crowns */}
+            {/* Colors */}
             <div>
-              <label className="text-xs text-[#9ca3af] block mb-1.5">رنگ اختصاصی:</label>
+              <label className="text-xs text-[#9ca3af] block mb-1.5">رنگ‌های بیشتر:</label>
               <div className="flex items-center gap-2.5 overflow-x-auto pb-1 scrollbar-none">
                 {HABIT_COLORS.map((c) => (
                   <button
@@ -245,7 +239,7 @@ export function HabitMakerView({
                     type="button"
                     onClick={() => setSelectedColor(c)}
                     className={`relative w-9 h-9 rounded-xl transition-all shrink-0 ${
-                      selectedColor === c ? 'ring-2 ring-white scale-110 shadow-md' : 'opacity-80'
+                      selectedColor === c ? 'ring-2 ring-white scale-110 shadow-md' : 'opacity-85'
                     }`}
                     style={{ backgroundColor: c }}
                   >
@@ -255,7 +249,7 @@ export function HabitMakerView({
               </div>
             </div>
 
-            {/* Icon Picker */}
+            {/* Icons */}
             <div>
               <label className="text-xs text-[#9ca3af] block mb-1.5">آیکون:</label>
               <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
@@ -276,7 +270,7 @@ export function HabitMakerView({
               </div>
             </div>
 
-            {/* Reminder Time */}
+            {/* Reminder */}
             <div>
               <label className="text-xs text-[#9ca3af] block mb-1.5">زمان یادآوری:</label>
               <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
@@ -302,10 +296,10 @@ export function HabitMakerView({
               </div>
             </div>
 
-            {/* Target Duration */}
+            {/* Duration */}
             <div>
               <div className="flex items-center gap-1 text-xs text-[#9ca3af] mb-1.5">
-                <span>طول دوره استمرار</span>
+                <span>طول دوره</span>
                 <Info className="w-3.5 h-3.5" />
               </div>
               <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
@@ -331,7 +325,7 @@ export function HabitMakerView({
               </div>
             </div>
 
-            {/* Bottom Submit Button */}
+            {/* Bottom Button */}
             <div className="pt-3 border-t border-[#252830]">
               <button
                 type="button"
@@ -339,7 +333,7 @@ export function HabitMakerView({
                 disabled={!name.trim()}
                 className="w-full py-3.5 rounded-2xl bg-[#10b981] hover:bg-[#0ea372] disabled:opacity-40 text-black font-bold text-sm flex items-center justify-center gap-2 active:scale-98 transition-all shadow-lg shadow-[#10b981]/25"
               >
-                ذخیره عادت
+                ذخیره
               </button>
             </div>
           </div>

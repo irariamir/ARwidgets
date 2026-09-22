@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, X, CheckCircle, ShieldAlert, ArrowLeft } from 'lucide-react';
+import { Bell, X, CheckCircle } from 'lucide-react';
 import { audioEngine } from '../utils/audioEngine';
 
 export function NotificationGuideModal({ isOpen, onClose }) {
@@ -10,9 +10,9 @@ export function NotificationGuideModal({ isOpen, onClose }) {
     if ('Notification' in window) {
       Notification.requestPermission().then((permission) => {
         if (permission === 'granted') {
-          new Notification('تیک‌آر (TickAR)', {
-            body: 'اعلان‌های یادآوری تسک‌ها و عادت‌ها با موفقیت فعال شدند! 🚀',
-            icon: '/brand/mark-green.png'
+          new Notification('تیک‌آر', {
+            body: 'اعلان‌های یادآوری با موفقیت فعال شدند!',
+            icon: '/brand/app-logo.png'
           });
         }
       });
@@ -41,33 +41,33 @@ export function NotificationGuideModal({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Description Text (Matching Lemoni flow_033.jpg) */}
+        {/* Text */}
         <div className="space-y-3 text-xs sm:text-sm text-[#e5e7eb] leading-relaxed">
           <p>
-            سیستم‌عامل اندروید به‌طور پیش‌فرض برای بهینه‌سازی مصرف باتری اجازه نمی‌دهد که اپلیکیشن‌ها به راحتی و سر وقت اعلان ارسال کنند. برای همین لازمه که تنظیمات زیر رو دستی انجام بدی تا بتونی به‌موقع و بدون هیچ مشکلی از تیک‌آر اعلان دریافت کنی:
+            سیستم‌عامل اندروید به‌طور پیش‌فرض برای بهینه‌سازی باتری، ارسال اعلان برخی اپلیکیشن‌ها را محدود می‌کند. برای دریافت به‌موقع اعلان‌های یادآوری تیک‌آر، مراحل زیر را بررسی کنید:
           </p>
 
-          <div className="bg-[#202227] border border-[#2d313a] rounded-2xl p-3.5 space-y-2 text-xs text-[#d1d5db]">
+          <div className="bg-[#202227] border border-[#2d313a] rounded-2xl p-3.5 space-y-2.5 text-xs text-[#d1d5db]">
             <div className="flex items-start gap-2">
               <CheckCircle className="w-4 h-4 text-[#3ECF8E] shrink-0 mt-0.5" />
-              <span><strong>۱. فعال‌سازی نوتیفیکیشن:</strong> در تنظیمات گوشی دسترسی Notifications را روشن کنید.</span>
+              <span><strong>۱. فعال‌سازی دسترسی نوتیفیکیشن:</strong> دسترسی Notifications را در تنظیمات گوشی روشن کنید.</span>
             </div>
             <div className="flex items-start gap-2">
               <CheckCircle className="w-4 h-4 text-[#3ECF8E] shrink-0 mt-0.5" />
-              <span><strong>۲. بهینه‌سازی باتری (Battery Optimization):</strong> اپلیکیشن تیک‌آر را روی حالت «Unrestricted» یا «بدون محدودیت» قرار دهید.</span>
+              <span><strong>۲. بهینه‌سازی باتری:</strong> برنامه تیک‌آر را روی حالت «بدون محدودیت (Unrestricted)» بگذارید.</span>
             </div>
             <div className="flex items-start gap-2">
               <CheckCircle className="w-4 h-4 text-[#3ECF8E] shrink-0 mt-0.5" />
-              <span><strong>۳. قفل در پس‌زمینه (Lock in Recents):</strong> در منوی برنامه‌های اخیر، آیکون قفل برنامه را فعال کنید.</span>
+              <span><strong>۳. قفل در پس‌زمینه:</strong> در لیست برنامه‌های اخیر (Recents)، آیکون قفل برنامه را فعال کنید.</span>
             </div>
           </div>
 
           <p className="text-[11px] text-[#9ca3af]">
-            در ضمن ممکنه به خاطر مدل‌های مختلف گوشی بعضی از این تنظیمات در بخش‌های متفاوتی قرار داشته باشن (سامسونگ، شیائومی، هواوی).
+            در مدل‌های مختلف گوشی (سامسونگ، شیائومی، هواوی) ممکن است این تنظیمات در بخش‌های متفاوتی قرار داشته باشد.
           </p>
         </div>
 
-        {/* Action Button (Matching Lemoni: فعالسازی دسترسی نوتیفیکیشن) */}
+        {/* Action */}
         <div className="pt-2 border-t border-[#252830]">
           <button
             onClick={handleRequestPermission}

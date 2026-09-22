@@ -13,11 +13,9 @@ import {
   Flame,
   Globe,
   Quote,
-  ChevronLeft,
-  Volume2,
   Crown
 } from 'lucide-react';
-import { PODCAST_EPISODES, DAILY_AFFIRMATIONS } from '../data/seedData';
+import { PODCAST_EPISODES } from '../data/seedData';
 
 export function GrowthView({
   onSelectTool,
@@ -26,8 +24,6 @@ export function GrowthView({
   onRewardXp
 }) {
   const [playingAudioId, setPlayingAudioId] = useState(null);
-  const [activePodcast, setActivePodcast] = useState(null);
-  const [activeTab, setActiveTab] = useState('all');
 
   const [completedMissions, setCompletedMissions] = useState({
     m1: false,
@@ -40,7 +36,7 @@ export function GrowthView({
     const updated = !completedMissions[id];
     setCompletedMissions({ ...completedMissions, [id]: updated });
     if (updated) {
-      onRewardXp(xp);
+      onRewardXp?.(xp);
       audioEngine.playTaskComplete();
     } else {
       audioEngine.playClick();
@@ -58,8 +54,8 @@ export function GrowthView({
   };
 
   return (
-    <div className="pb-28 px-4 pt-3 max-w-md mx-auto space-y-4">
-      {/* 1. Top Tutorial / Promotion Banner (Matching Lemoni) */}
+    <div className="pb-28 px-4 pt-3 max-w-md mx-auto space-y-4 select-none">
+      {/* 1. Top Tutorial Banner (Matching Lemoni start_018.jpg) */}
       <div
         onClick={onOpenVipModal}
         className="relative overflow-hidden rounded-3xl bg-gradient-to-l from-[#fed7aa]/20 via-[#fef08a]/10 to-[#1c1e22] border border-[#fef08a]/20 p-5 cursor-pointer active:scale-98 transition-all shadow-lg"
@@ -68,58 +64,42 @@ export function GrowthView({
           <div className="space-y-1 z-10">
             <span className="text-[10px] font-bold text-[#f59e0b] bg-[#f59e0b]/15 px-2.5 py-1 rounded-full inline-flex items-center gap-1">
               <Sparkles className="w-3 h-3" />
-              راهنمای جامع
+              راهنمای کاربردی
             </span>
             <h2 className="text-base font-bold text-white pt-1">
-              آموزش استفاده از تیک‌آر (TickAR)
+              آموزش استفاده از تیک‌آر
             </h2>
             <p className="text-xs text-[#d1d5db] leading-relaxed max-w-[220px]">
               چگونه با متد پومودورو، عادت‌ساز و مدیریت زمان به اوج بازدهی برسیم؟
             </p>
           </div>
 
-          {/* 3D-styled Badge */}
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#f59e0b] to-[#fbbf24] flex items-center justify-center text-black font-black text-2xl shadow-xl shadow-[#f59e0b]/30 shrink-0">
             ✓
           </div>
         </div>
       </div>
 
-      {/* 2. Motivational Message Card (Matching Lemoni start_018.jpg) */}
+      {/* 2. Motivational Message Card (Exact text from Lemoni start_018.jpg) */}
       <div className="relative bg-[#191a1e] border border-[#272a31] rounded-3xl p-5 space-y-3 shadow-md">
-        {/* Quote Icon in Green */}
         <div className="w-9 h-9 rounded-2xl bg-[#3ECF8E]/15 border border-[#3ECF8E]/30 flex items-center justify-center text-[#3ECF8E]">
           <Quote className="w-5 h-5 fill-[#3ECF8E]" />
         </div>
 
-        {/* Motivation Text */}
         <div className="space-y-1.5 text-xs sm:text-sm text-[#e5e7eb] leading-relaxed">
           <p className="font-bold text-white">سلام رفیق جان</p>
           <p>این روزها تعیین می‌کنه چند سال دیگه کجایی و چه حالی داری. 😉</p>
           <p>روزهایی که خیلی‌ها غر می‌زنن، تو در مسیر درست باقی بمون! 🤗</p>
         </div>
 
-        {/* Corporate VIP Free Perk Notice */}
-        <div className="pt-2 border-t border-[#252830] flex items-center justify-between text-xs">
-          <span className="flex items-center gap-1.5 text-[#f59e0b] font-medium">
-            <Flame className="w-4 h-4 fill-[#f59e0b]" />
-            اشتراک طلایی تیک‌آر:
-          </span>
-          <span className="text-[11px] font-bold text-[#3ECF8E] bg-[#3ECF8E]/10 px-2.5 py-1 rounded-xl">
-            ۱۰۰٪ رایگان و دائمی فعال است
-          </span>
-        </div>
-
-        {/* Server Status */}
         <div className="flex items-center gap-2 text-[11px] text-[#9ca3af] bg-[#141518] p-2.5 rounded-2xl border border-[#23262d]">
           <Globe className="w-3.5 h-3.5 text-[#3ECF8E] shrink-0" />
-          <span>پایگاه داده آفلاین و سرورهای همگام‌سازی ابری ARIAMIR فعال هستند.</span>
+          <span>پایگاه داده آفلاین و سرورهای همگام‌سازی ابری تیک‌آر فعال هستند.</span>
         </div>
       </div>
 
-      {/* 3. 4 Tool Shortcuts Grid (Matching Lemoni: موزیک / پادکست / کتاب صوتی / چالش‌ها) */}
+      {/* 3. 4 Tool Shortcuts (Matching Lemoni: موزیک / پادکست / کتاب صوتی / چالش‌ها) */}
       <div className="grid grid-cols-4 gap-2.5">
-        {/* Tool 1: موزیک (Focus Music) */}
         <button
           onClick={() => onSelectTool('pomodoro_music')}
           className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[#ec4899]/15 border border-[#ec4899]/30 hover:border-[#ec4899] active:scale-95 transition-all text-center space-y-1.5 shadow-sm"
@@ -130,7 +110,6 @@ export function GrowthView({
           <span className="text-xs font-bold text-white">موزیک</span>
         </button>
 
-        {/* Tool 2: پادکست (Podcasts) */}
         <button
           onClick={() => onSelectTool('podcasts')}
           className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[#10b981]/15 border border-[#10b981]/30 hover:border-[#10b981] active:scale-95 transition-all text-center space-y-1.5 shadow-sm"
@@ -141,7 +120,6 @@ export function GrowthView({
           <span className="text-xs font-bold text-white">پادکست</span>
         </button>
 
-        {/* Tool 3: کتاب صوتی (Audiobooks) */}
         <button
           onClick={() => onSelectTool('audiobooks')}
           className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[#f59e0b]/15 border border-[#f59e0b]/30 hover:border-[#f59e0b] active:scale-95 transition-all text-center space-y-1.5 shadow-sm"
@@ -152,7 +130,6 @@ export function GrowthView({
           <span className="text-xs font-bold text-white">کتاب صوتی</span>
         </button>
 
-        {/* Tool 4: چالش‌ها (Challenges) */}
         <button
           onClick={() => onSelectTool('habits')}
           className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[#f97316]/15 border border-[#f97316]/30 hover:border-[#f97316] active:scale-95 transition-all text-center space-y-1.5 shadow-sm"
@@ -172,17 +149,16 @@ export function GrowthView({
             <h3 className="text-sm font-bold text-white">ماموریت‌های امروز</h3>
           </div>
           <span className="text-xs text-[#3ECF8E] font-medium">
-            {toPersianDigits(Object.values(completedMissions).filter(Boolean).length)} از ۴ تکمیل شده
+            {toPersianDigits(Object.values(completedMissions).filter(Boolean).length)} از ۴
           </span>
         </div>
 
-        {/* Mission list */}
         <div className="space-y-2">
           {[
             { id: 'm1', title: 'تکمیل ۳ تسک کاری و آموزشی', xp: 50 },
             { id: 'm2', title: 'یک سشن پومودورو ۲۵ دقیقه‌ای تمرکز', xp: 40 },
             { id: 'm3', title: 'ثبت وضعیت احساسات و حال دل امروز', xp: 30 },
-            { id: 'm4', title: 'گوش دادن به ۱۰ دقیقه پادکست رشد', xp: 40 }
+            { id: 'm4', title: 'گوش دادن به پادکست رشد روز', xp: 40 }
           ].map((m) => (
             <div
               key={m.id}
@@ -216,16 +192,16 @@ export function GrowthView({
         </div>
       </section>
 
-      {/* 5. Featured Podcasts & Audio Section */}
+      {/* 5. Featured Podcasts & Audiobooks */}
       <section className="space-y-2.5">
         <div className="flex items-center justify-between px-1">
           <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
             <Headphones className="w-4 h-4 text-[#3ECF8E]" />
-            پادکست‌ها و درس‌گفتارهای برگزیده
+            پادکست‌ها و درس‌گفتارها
           </h3>
           <span className="text-xs text-[#f59e0b] flex items-center gap-1">
             <Crown className="w-3.5 h-3.5" />
-            VIP رایگان
+            برگزیده
           </span>
         </div>
 

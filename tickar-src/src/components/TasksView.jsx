@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toPersianDigits, getCurrentJalaliDate } from '../utils/jalali';
 import { audioEngine } from '../utils/audioEngine';
 import {
@@ -13,8 +13,6 @@ import {
   Flag,
   Calendar,
   Layers,
-  ChevronDown,
-  Sparkles,
   Crown
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -24,7 +22,7 @@ const PRIORITY_FLAGS = [
   { id: 'blue', color: '#3b82f6', label: 'متوسط' },
   { id: 'yellow', color: '#eab308', label: 'مهم' },
   { id: 'orange', color: '#f97316', label: 'خیلی مهم' },
-  { id: 'pink', color: '#ec4899', label: 'فوری و حیاتی' },
+  { id: 'pink', color: '#ec4899', label: 'حیاتی' },
   { id: 'none', color: '#6b7280', label: 'بدون برچسب' }
 ];
 
@@ -34,22 +32,14 @@ export function TasksView({
   onAddTask,
   onUpdateTask,
   onDeleteTask,
-  onToggleTask,
-  onOpenAiPlanner
+  onToggleTask
 }) {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [activeTaskDetail, setActiveTaskDetail] = useState(null);
   const [isCreatingTask, setIsCreatingTask] = useState(false);
   const [isEditingTask, setIsEditingTask] = useState(null);
 
-  // Listen for open-quick-add event from floating (+) button
-  React.useEffect(() => {
-    const handleOpenQuickAdd = () => setIsCreatingTask(true);
-    window.addEventListener('open-quick-add', handleOpenQuickAdd);
-    return () => window.removeEventListener('open-quick-add', handleOpenQuickAdd);
-  }, []);
-
-  // Form states for Quick/Full Add
+  // Form states
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('personal');
   const [priorityFlag, setPriorityFlag] = useState('green');
@@ -61,6 +51,13 @@ export function TasksView({
 
   const jalali = getCurrentJalaliDate();
 
+  // Listen for open-quick-add event from floating (+) button
+  useEffect(() => {
+    const handleOpenQuickAdd = () => setIsCreatingTask(true);
+    window.addEventListener('open-quick-add', handleOpenQuickAdd);
+    return () => window.removeEventListener('open-quick-add', handleOpenQuickAdd);
+  }, []);
+
   // Filter tasks by category
   const filteredTasks = tasks.filter(t => {
     if (selectedCategory === 'all') return true;
@@ -68,7 +65,7 @@ export function TasksView({
     return t.category === selectedCategory;
   });
 
-  // Handle task completion with visual effects
+  // Handle task completion
   const handleToggle = (task, e) => {
     e?.stopPropagation();
     const newStatus = !task.completed;
@@ -88,7 +85,7 @@ export function TasksView({
   };
 
   const handleSaveTask = (e) => {
-    e.preventDefault();
+    e?.preventDefault();
     if (!title.trim()) return;
 
     if (isEditingTask) {
@@ -175,24 +172,24 @@ export function TasksView({
   };
 
   return (
-    <div className="pb-28 px-4 pt-3 max-w-md mx-auto space-y-4">
-      {/* Top Title & Quick Actions */}
+    <div className="pb-28 px-4 pt-3 max-w-md mx-auto space-y-4 select-none">
+      {/* Top Title (Matching Lemoni: ≡ لیست کارها) */}
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-white flex items-center gap-2">
           <span className="w-1.5 h-5 rounded-full bg-[#3ECF8E]"></span>
           لیست کارها
         </h1>
         <button
-          onClick={onOpenAiPlanner}
-          className="text-xs text-[#3ECF8E] bg-[#18231c] border border-[#3ECF8E]/30 px-3 py-1.5 rounded-xl flex items-center gap-1.5 active:scale-95 transition-all shadow-sm"
+          onClick={() => setIsCreatingTask(true)}
+          className="text-xs text-black font-bold bg-[#10b981] hover:bg-[#0ea372] px-3.5 py-1.5 rounded-xl flex items-center gap-1 active:scale-95 transition-all shadow-md shadow-[#10b981]/20"
         >
-          <Sparkles className="w-3.5 h-3.5" />
-          برنامه‌ریز هوشمند AI
+          <Plus className="w-4 h-4 stroke-[2.5]" />
+          کار جدید
         </button>
       </div>
 
-      {/* Filter Category Pills */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1.5 scrollbar-none select-none text-xs">
+      {/* Filter Category Pills (Matching Lemoni scene_008.jpg) */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1.5 scrollbar-none text-xs">
         <button
           onClick={() => setIsCreatingTask(true)}
           className="w-8 h-8 rounded-xl bg-[#1c1e22] border border-[#2e323b] flex items-center justify-center text-[#9ca3af] hover:text-white shrink-0 active:scale-95"
@@ -302,18 +299,18 @@ export function TasksView({
                     </span>
 
                     <div className="flex items-center gap-2 text-[11px] text-[#8b929e]">
-                      <span className="flex items-center gap-1 bg-[#22242a] px-2 py-0.5 rounded-lg">
+                      <span className="flex items-center gap-1 bg-[#22242b] px-2 py-0.5 rounded-lg">
                         <Bell className="w-3 h-3 text-[#f59e0b]" />
                         {toPersianDigits(task.time || '۱۲:۰۰')}
                       </span>
 
-                      <span className="flex items-center gap-1 bg-[#22242a] px-2 py-0.5 rounded-lg">
+                      <span className="flex items-center gap-1 bg-[#22242b] px-2 py-0.5 rounded-lg">
                         <Folder className="w-3 h-3 text-[#3ECF8E]" />
                         {getCategoryName(task.category)}
                       </span>
 
                       {task.subtasks && task.subtasks.length > 0 && (
-                        <span className="flex items-center gap-1 bg-[#22242a] px-2 py-0.5 rounded-lg">
+                        <span className="flex items-center gap-1 bg-[#22242b] px-2 py-0.5 rounded-lg">
                           <Layers className="w-3 h-3 text-[#3b82f6]" />
                           {toPersianDigits(task.subtasks.filter(s => s.completed).length)}/
                           {toPersianDigits(task.subtasks.length)}
@@ -520,21 +517,15 @@ export function TasksView({
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="مثلا: مطالعه کتاب یا جلسه کاری"
+                placeholder="مثلا: مطالعه کتاب"
                 autoFocus
                 className="w-full bg-[#202227] border border-[#2d313a] focus:border-[#3ECF8E] rounded-2xl px-4 py-3 text-sm text-white placeholder-[#6b7280] outline-none transition-all"
               />
             </div>
 
-            {/* Priority Flag Selector with VIP Crowns */}
+            {/* Priority Flags (Matching Lemoni popup_024.jpg with crown icons) */}
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs text-[#9ca3af]">برچسب و اولویت:</label>
-                <span className="text-[10px] text-[#f59e0b] bg-[#f59e0b]/10 px-2 py-0.5 rounded-full flex items-center gap-1 font-medium">
-                  <Crown className="w-3 h-3" />
-                  VIP آنلاک رایگان
-                </span>
-              </div>
+              <label className="text-xs text-[#9ca3af] block mb-1.5">برچسب:</label>
               <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
                 {PRIORITY_FLAGS.map((flag) => (
                   <button
@@ -544,7 +535,7 @@ export function TasksView({
                     className={`relative w-11 h-10 rounded-xl flex items-center justify-center transition-all ${
                       priorityFlag === flag.id
                         ? 'ring-2 ring-[#3ECF8E] scale-105 shadow-md'
-                        : 'opacity-80 hover:opacity-100'
+                        : 'opacity-85 hover:opacity-100'
                     }`}
                     style={{ backgroundColor: `${flag.color}25`, border: `1.5px solid ${flag.color}` }}
                   >
@@ -590,7 +581,7 @@ export function TasksView({
                   { id: '30', label: '۳۰ دقیقه' },
                   { id: '45', label: '۴۵ دقیقه' },
                   { id: '60', label: '۱ ساعت' },
-                  { id: 'custom', label: '⏱️ دلخواه' }
+                  { id: 'custom', label: '⏱️ مدت زمان دلخواه' }
                 ].map((d) => (
                   <button
                     key={d.id}
@@ -615,8 +606,7 @@ export function TasksView({
                 {[
                   { id: 'personal', label: 'شخصی' },
                   { id: 'work', label: 'کاری' },
-                  { id: 'study', label: 'آموزشی' },
-                  { id: 'ariamir', label: 'پروژه‌های ARIAMIR' }
+                  { id: 'study', label: 'آموزشی' }
                 ].map((c) => (
                   <button
                     key={c.id}
@@ -636,14 +626,14 @@ export function TasksView({
 
             {/* Subtasks (Optional) */}
             <div className="space-y-2">
-              <label className="text-xs text-[#9ca3af] block">زیرکارها (اختیاری):</label>
+              <label className="text-xs text-[#9ca3af] block">زیرکارها:</label>
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={newSubtaskText}
                   onChange={(e) => setNewSubtaskText(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addSubtask(); }}}
-                  placeholder="افزودن گام یا زیرکار..."
+                  placeholder="افزودن زیرکار..."
                   className="flex-1 bg-[#202227] border border-[#2d313a] rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-[#3ECF8E]"
                 />
                 <button
@@ -672,7 +662,7 @@ export function TasksView({
               )}
             </div>
 
-            {/* Bottom Submit Button (Matching Lemoni: ثبت ->) */}
+            {/* Bottom Submit Button (Matching Lemoni: ثبت ←) */}
             <div className="pt-3 border-t border-[#252830]">
               <button
                 type="button"
@@ -680,7 +670,7 @@ export function TasksView({
                 disabled={!title.trim()}
                 className="w-full py-3.5 rounded-2xl bg-[#10b981] hover:bg-[#0ea372] disabled:opacity-40 text-black font-bold text-sm flex items-center justify-center gap-2 active:scale-98 transition-all shadow-lg shadow-[#10b981]/25"
               >
-                <span>{isEditingTask ? 'بروزرسانی تغییرات' : 'ثبت کار'}</span>
+                <span>{isEditingTask ? 'ویرایش کار' : 'ثبت'}</span>
                 <span className="text-base font-bold">←</span>
               </button>
             </div>

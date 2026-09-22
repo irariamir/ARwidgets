@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { toPersianDigits, getCurrentJalaliDate } from '../utils/jalali';
 import { audioEngine } from '../utils/audioEngine';
-import { Smile, Heart, Check, Sparkles, MessageCircle, Calendar } from 'lucide-react';
+import { Smile, Heart, Check } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 const MOODS = [
-  { id: 5, label: 'عالی', emoji: '🤩', color: '#10b981', ringColor: 'ring-[#10b981]' },
-  { id: 4, label: 'خوب', emoji: '😊', color: '#3b82f6', ringColor: 'ring-[#3b82f6]' },
-  { id: 3, label: 'معمولی', emoji: '😐', color: '#eab308', ringColor: 'ring-[#eab308]' },
-  { id: 2, label: 'بد', emoji: '😔', color: '#f97316', ringColor: 'ring-[#f97316]' },
-  { id: 1, label: 'افتضاح', emoji: '😫', color: '#ef4444', ringColor: 'ring-[#ef4444]' }
+  { id: 5, label: 'عالی', emoji: '🤩', color: '#10b981' },
+  { id: 4, label: 'خوب', emoji: '😊', color: '#3b82f6' },
+  { id: 3, label: 'معمولی', emoji: '😐', color: '#eab308' },
+  { id: 2, label: 'بد', emoji: '😔', color: '#f97316' },
+  { id: 1, label: 'افتضاح', emoji: '😫', color: '#ef4444' }
 ];
 
 export function MoodTrackerView({ moods, onAddMood, onRewardXp }) {
@@ -49,9 +49,9 @@ export function MoodTrackerView({ moods, onAddMood, onRewardXp }) {
     <div className="pb-28 px-4 pt-3 max-w-md mx-auto space-y-5 select-none">
       {/* Title */}
       <div className="text-center">
-        <h1 className="text-xl font-bold text-white">ثبت احساسات و حال دل</h1>
+        <h1 className="text-xl font-bold text-white">ثبت احساسات</h1>
         <p className="text-xs text-[#9ca3af] mt-1">
-          احساسات امروزت رو ثبت کن تا الگوی انرژی و روحیه ات رو تحلیل کنیم
+          احساسات امروزت رو ثبت کن
         </p>
       </div>
 
@@ -84,7 +84,7 @@ export function MoodTrackerView({ moods, onAddMood, onRewardXp }) {
       {/* Energy Slider */}
       <div className="bg-[#191a1e] border border-[#272a31] rounded-3xl p-4 space-y-2">
         <div className="flex items-center justify-between text-xs font-bold text-white">
-          <span>میزان انرژی و سرزندگی:</span>
+          <span>میزان انرژی و انگیزه:</span>
           <span className="text-[#3ECF8E] bg-[#3ECF8E]/10 px-2 py-0.5 rounded-lg">
             {toPersianDigits(energyLevel)} از ۱۰
           </span>
@@ -99,13 +99,13 @@ export function MoodTrackerView({ moods, onAddMood, onRewardXp }) {
         />
       </div>
 
-      {/* Note Textarea (Matching Lemoni scene_011.jpg) */}
+      {/* Note Textarea (Matching Lemoni scene_011.jpg: یادداشت کوتاه) */}
       <div className="bg-[#191a1e] border border-[#272a31] rounded-3xl p-4 space-y-2">
-        <label className="text-xs text-[#9ca3af] block">یادداشت کوتاه (اختیاری):</label>
+        <label className="text-xs text-[#9ca3af] block">یادداشت کوتاه</label>
         <textarea
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="امروز چه اتفاقی افتاد که روی حالت تاثیر داشت؟"
+          placeholder="امروز چه احساسی داری؟"
           rows={3}
           className="w-full bg-[#202227] border border-[#2d313a] focus:border-[#3ECF8E] rounded-2xl p-3 text-xs text-white placeholder-[#6b7280] outline-none transition-all resize-none"
         />
@@ -118,7 +118,7 @@ export function MoodTrackerView({ moods, onAddMood, onRewardXp }) {
           className="w-full py-3.5 rounded-2xl bg-[#10b981] hover:bg-[#0ea372] text-black font-bold text-sm flex items-center justify-center gap-2 active:scale-98 transition-all shadow-lg shadow-[#10b981]/25"
         >
           <Check className="w-5 h-5 stroke-[2.5]" />
-          <span>ذخیره وضعیت احساسی</span>
+          <span>ذخیره</span>
         </button>
       </div>
 
@@ -127,7 +127,7 @@ export function MoodTrackerView({ moods, onAddMood, onRewardXp }) {
         <div className="space-y-3 pt-3 border-t border-[#252830]">
           <h3 className="text-sm font-bold text-white flex items-center gap-2">
             <Heart className="w-4 h-4 text-[#ec4899]" />
-            تاریخچه احساسات اخیر
+            تاریخچه احساسات
           </h3>
 
           <div className="space-y-2">
