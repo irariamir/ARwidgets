@@ -2,28 +2,30 @@ import React, { useState } from 'react';
 import { 
   Plus, 
   CheckCircle2, 
-  Circle, 
   Clock, 
   Flame, 
   Sparkles, 
-  ChevronDown, 
-  ChevronUp, 
   Play, 
   Trash2, 
   Edit3, 
-  Tag, 
-  Flag,
-  Share2,
-  Calendar as CalendarIcon,
-  Quote,
-  Check,
+  Calendar as CalendarIcon, 
+  Quote, 
+  Check, 
   Zap,
-  ArrowUpRight
+  Layers,
+  ChevronLeft,
+  ChevronRight,
+  TrendingUp,
+  Smile
 } from 'lucide-react';
 import { 
   getCurrentJalaliDate, 
   toPersianDigits, 
-  formatJalaliFull 
+  formatJalaliFull,
+  gregorianToJalali,
+  jalaliToGregorian,
+  PERSIAN_DAY_NAMES_SHORT,
+  PERSIAN_MONTH_NAMES
 } from '../utils/jalali';
 import { DAILY_AFFIRMATIONS } from '../data/seedData';
 import confetti from 'canvas-confetti';
@@ -45,17 +47,40 @@ export function TodayView({
   playSparkSound
 }) {
   const currentJalali = getCurrentJalaliDate();
+  const [selectedDateStr, setSelectedDateStr] = useState(currentJalali.dateString);
   const [quickTitle, setQuickTitle] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('all'); // all, urgent, ariamir, completed
-  const [expandedTaskId, setExpandedTaskId] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [quoteIndex, setQuoteIndex] = useState(0);
 
-  // Filter tasks for today
-  const todayTasks = tasks.filter(t => t.date === currentJalali.dateString || !t.date);
+  // Generate 7-day horizontal strip around today
+  const generateWeekDays = () => {
+    const days = [];
+    const now = new Date();
+    for (let i = -2; i <= 4; i++) {
+      const d = new Date(now);
+      d.setDate(now.getDate() + i);
+      const j = gregorianToJalali(d.getFullYear(), d.getMonth() + 1, d.getDate());
+      const dayIndex = (d.getDay() + 1) % 7;
+      const dateString = `${j.jy}/${String(j.jm).padStart(2, '0')}/${String(j.jd).padStart(2, '0')}`;
+      days.push({
+        dateString,
+        dayNum: j.jd,
+        dayNameShort: PERSIAN_DAY_NAMES_SHORT[dayIndex],
+        monthName: PERSIAN_MONTH_NAMES[j.jm - 1],
+        isToday: dateString === currentJalali.dateString
+      });
+    }
+    return days;
+  };
+
+  const weekDays = generateWeekDays();
+
+  // Tasks for selected date in the strip
+  const dateTasks = tasks.filter(t => t.date === selectedDateStr || (!t.date && selectedDateStr === currentJalali.dateString));
   
-  const completedTodayCount = todayTasks.filter(t => t.completed).length;
-  const totalTodayCount = todayTasks.length;
-  const progressPercent = totalTodayCount > 0 ? Math.round((completedTodayCount / totalTodayCount) * 100) : 0;
+  const completedCount = dateTasks.filter(t => t.completed).length;
+  const totalCount = dateTasks.length;
+  const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   const currentQuote = DAILY_AFFIRMATIONS[quoteIndex % DAILY_AFFIRMATIONS.length];
 
@@ -63,8 +88,7 @@ export function TodayView({
     e.preventDefault();
     if (!quickTitle.trim()) return;
 
-    // NLP Tag parsing: check for #tag or !high
-    let category = 'ariamir';
+    let category = selectedCategory !== 'all' ? selectedCategory : 'ariamir';
     let priority = 'medium';
     let cleanTitle = quickTitle;
 
@@ -94,7 +118,7 @@ export function TodayView({
       category,
       priority,
       matrixQuadrant: priority === 'urgent' || priority === 'high' ? 'do_first' : 'schedule',
-      date: currentJalali.dateString,
+      date: selectedDateStr,
       time: '12:00',
       estimatedPomodoros: 2,
       completedPomodoros: 0,
@@ -120,21 +144,18 @@ export function TodayView({
     }
   };
 
-  const filteredTasks = todayTasks.filter(t => {
-    if (selectedFilter === 'urgent') return t.priority === 'urgent' || t.priority === 'high';
-    if (selectedFilter === 'ariamir') return t.category === 'ariamir';
-    if (selectedFilter === 'completed') return t.completed;
-    if (selectedFilter === 'pending') return !t.completed;
-    return true;
+  const filteredTasks = dateTasks.filter(t => {
+    if (selectedCategory === 'all') return true;
+    return t.category === selectedCategory;
   });
 
   return (
-    <div className="space-y-6 pb-24 text-right animate-in fade-in duration-300">
+    <div className="space-y-5 pb-24 text-right animate-in fade-in duration-300">
       
-      {/* Hero Banner: Greeting & Jalali Date */}
-      <div className="relative rounded-3xl p-6 bg-gradient-to-br from-[#171717] via-[#121212] to-[#0A0A0A] border border-[#2E2E2E] shadow-xl overflow-hidden">
-        {/* Background glow circle */}
-        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-[#005936]/20 blur-3xl pointer-events-none" />
+      {/* 1. Lemoni-Style Top Hero Banner */}
+      <div className="relative rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-[#171717] via-[#121212] to-[#0A0A0A] border border-[#2E2E2E] shadow-xl overflow-hidden">
+        {/* Glow halo */}
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-[#005936]/25 blur-3xl pointer-events-none" />
         
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -144,19 +165,22 @@ export function TodayView({
                 {currentJalali.dayName}، {toPersianDigits(currentJalali.day)} {currentJalali.monthName} {toPersianDigits(currentJalali.year)}
               </span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#3ECF8E]" />
-              <span className="text-[11px] text-[#898989]">امروز</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#005936] text-[#3ECF8E]">
+                ARIAMIR VIP PRO
+              </span>
             </div>
-            <h1 className="font-heading font-black text-2xl sm:text-3xl text-white tracking-tight">
-              سلام، روزت پرانرژی! ⚡
+            
+            <h1 className="font-heading font-black text-xl sm:text-2xl text-white tracking-tight">
+              با تیک‌آر به زندگیت نظم بده 🍋
             </h1>
             <p className="text-xs text-[#B4B4B4] mt-1">
-              امروز {toPersianDigits(totalTodayCount)} برنامه داری که {toPersianDigits(completedTodayCount)} مورد انجام شده.
+              امروز {toPersianDigits(totalCount)} برنامه داری که {toPersianDigits(completedCount)} مورد انجام شده است.
             </p>
           </div>
 
           {/* Progress Circular Widget */}
-          <div className="flex items-center gap-4 self-start sm:self-auto bg-[#1C1C1C]/70 backdrop-blur-md p-3.5 rounded-2xl border border-[#2E2E2E]">
-            <div className="relative w-14 h-14 flex items-center justify-center">
+          <div className="flex items-center gap-3.5 self-start sm:self-auto bg-[#1C1C1C]/80 backdrop-blur-md px-4 py-3 rounded-2xl border border-[#2E2E2E]">
+            <div className="relative w-12 h-12 flex items-center justify-center">
               <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                 <path
                   className="text-[#2A2A2A]"
@@ -175,63 +199,86 @@ export function TodayView({
                   d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                 />
               </svg>
-              <span className="absolute font-mono font-bold text-xs text-white">
+              <span className="absolute font-mono font-bold text-[11px] text-white">
                 {toPersianDigits(progressPercent)}٪
               </span>
             </div>
             <div className="text-right">
-              <span className="text-xs font-bold text-white block">پیشرفت روزانه</span>
-              <span className="text-[10px] text-[#3ECF8E] font-medium">
-                {progressPercent === 100 && totalTodayCount > 0 ? 'عالی! تمام اهداف انجام شد 🎉' : 'ادامه بده تا تسلط کامل!'}
+              <span className="text-xs font-bold text-white block">چک‌لیست کارها</span>
+              <span className="text-[10px] text-[#3ECF8E] font-medium font-mono">
+                {toPersianDigits(completedCount)} از {toPersianDigits(totalCount)} تکمیل
               </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Mini Habit Strip (Daily 1-Click Check-in) */}
-      <div className="space-y-2.5">
+      {/* 2. Lemoni Horizontal Day Strip (شنبه تا جمعه) */}
+      <div className="bg-[#121212] border border-[#2E2E2E] rounded-3xl p-3 shadow-md">
+        <div className="grid grid-cols-7 gap-1.5 text-center">
+          {weekDays.map((day) => {
+            const isSelected = selectedDateStr === day.dateString;
+            return (
+              <button
+                key={day.dateString}
+                onClick={() => setSelectedDateStr(day.dateString)}
+                className={`py-2 px-1 rounded-2xl flex flex-col items-center justify-center transition-all ${
+                  isSelected
+                    ? 'bg-[#3ECF8E] text-black font-black shadow-lg shadow-[#3ECF8E]/30 scale-105'
+                    : day.isToday
+                    ? 'bg-[#005936]/40 text-[#3ECF8E] border border-[#3ECF8E]/50'
+                    : 'bg-[#171717] text-[#898989] hover:text-white hover:bg-[#242424]'
+                }`}
+              >
+                <span className="text-[10px] font-semibold mb-0.5">{day.dayNameShort}</span>
+                <span className="font-mono text-xs font-bold">{toPersianDigits(day.dayNum)}</span>
+                {day.isToday && !isSelected && (
+                  <span className="w-1 h-1 rounded-full bg-[#3ECF8E] mt-1" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 3. Lemoni Habit Tracker Quick Row */}
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h3 className="font-heading font-bold text-sm text-white flex items-center gap-1.5">
-            <Flame className="w-4 h-4 text-orange-500 fill-orange-500" />
-            عادت‌های روزانه و زنجیره استمرار
+          <h3 className="font-heading font-bold text-xs text-white flex items-center gap-1.5">
+            <Flame className="w-4 h-4 text-orange-400 fill-orange-400" />
+            ردیاب عادت‌های روزانه
           </h3>
-          <span className="text-[11px] text-[#898989]">ثبت سریع امروز</span>
+          <span className="text-[10px] text-[#898989]">ثبت سریع با یک لمس</span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+        <div className="flex gap-2.5 overflow-x-auto pb-1">
           {habits.map((habit) => {
-            const isCompletedToday = habit.completedDates && habit.completedDates.includes(currentJalali.dateString);
+            const isDoneToday = habit.completedDates && habit.completedDates.includes(selectedDateStr);
             return (
               <button
                 key={habit.id}
                 onClick={() => {
-                  onToggleHabit(habit.id, currentJalali.dateString);
-                  if (!isCompletedToday && soundEffects && playSparkSound) playSparkSound();
+                  onToggleHabit(habit.id, selectedDateStr);
+                  if (!isDoneToday && soundEffects && playSparkSound) playSparkSound();
                 }}
-                className={`p-3 rounded-2xl border text-right transition-all flex flex-col justify-between min-h-[90px] relative overflow-hidden group ${
-                  isCompletedToday
-                    ? 'bg-gradient-to-br from-[#005936]/40 to-[#121212] border-[#3ECF8E]/60 shadow-sm'
+                className={`flex-shrink-0 flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl border transition-all ${
+                  isDoneToday
+                    ? 'bg-[#005936]/40 border-[#3ECF8E] shadow-sm'
                     : 'bg-[#141414] border-[#2E2E2E] hover:border-[#3ECF8E]/40'
                 }`}
               >
-                <div className="flex items-center justify-between">
-                  <span className="text-lg">{habit.icon}</span>
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center border transition-colors ${
-                    isCompletedToday ? 'bg-[#3ECF8E] border-[#3ECF8E] text-black' : 'border-[#4A4A4A]'
-                  }`}>
-                    {isCompletedToday && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="font-bold text-xs text-white truncate group-hover:text-[#3ECF8E] transition-colors">
-                    {habit.name}
-                  </h4>
-                  <div className="flex items-center gap-1 mt-1 text-[10px] text-orange-400 font-mono">
+                <span className="text-xl">{habit.icon}</span>
+                <div className="text-right">
+                  <span className="font-bold text-xs text-white block truncate max-w-[120px]">{habit.name}</span>
+                  <span className="text-[10px] text-orange-400 font-mono font-bold flex items-center gap-0.5">
                     <Flame className="w-3 h-3 fill-orange-400" />
-                    <span>{toPersianDigits(habit.streak)} روز پیوسته</span>
-                  </div>
+                    {toPersianDigits(habit.streak)} روز پیوسته
+                  </span>
+                </div>
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
+                  isDoneToday ? 'bg-[#3ECF8E] border-[#3ECF8E] text-black' : 'border-[#4A4A4A]'
+                }`}>
+                  {isDoneToday && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                 </div>
               </button>
             );
@@ -239,14 +286,14 @@ export function TodayView({
         </div>
       </div>
 
-      {/* Quick Task Adder Input */}
+      {/* 4. Quick Add Task Input */}
       <form onSubmit={handleQuickAdd} className="relative">
         <div className="flex items-center gap-2 p-2 rounded-2xl bg-[#171717] border border-[#2E2E2E] focus-within:border-[#3ECF8E] focus-within:ring-1 focus-within:ring-[#3ECF8E] transition-all shadow-md">
           <input
             type="text"
             value={quickTitle}
             onChange={(e) => setQuickTitle(e.target.value)}
-            placeholder="افزودن سریع وظیفه برای امروز... (مثال: آماده‌سازی پروپوزال !فوری #کار)"
+            placeholder="کاراتو برنامه‌ریزی کن... (مثال: بررسی تسک‌های روز !فوری #کار)"
             className="flex-1 bg-transparent px-3 py-1.5 text-xs text-white outline-none placeholder:text-[#525252]"
           />
           <button
@@ -260,26 +307,34 @@ export function TodayView({
         </div>
       </form>
 
-      {/* Filter Tabs */}
+      {/* 5. Category Filter Pills */}
       <div className="flex items-center justify-between flex-wrap gap-2 pt-1">
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full">
-          {[
-            { id: 'all', label: 'همه وظایف' },
-            { id: 'urgent', label: 'فوری و مهم ⚡' },
-            { id: 'ariamir', label: 'پروژه‌های ARIAMIR 💼' },
-            { id: 'pending', label: 'در انتظار' },
-            { id: 'completed', label: 'تکمیل شده' }
-          ].map((f) => (
+          <button
+            onClick={() => setSelectedCategory('all')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+              selectedCategory === 'all'
+                ? 'bg-[#005936] text-[#3ECF8E] border border-[#3ECF8E]/50'
+                : 'bg-[#171717] text-[#898989] hover:text-white border border-[#242424]'
+            }`}
+          >
+            همه دسته‌ها
+          </button>
+          {categories.map((cat) => (
             <button
-              key={f.id}
-              onClick={() => setSelectedFilter(f.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-                selectedFilter === f.id
-                  ? 'bg-[#005936] text-[#3ECF8E] border border-[#3ECF8E]/50'
-                  : 'bg-[#171717] text-[#898989] hover:text-white border border-[#242424]'
+              key={cat.id}
+              onClick={() => setSelectedCategory(cat.id)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border ${
+                selectedCategory === cat.id
+                  ? 'bg-white/10 text-white shadow-sm'
+                  : 'bg-[#171717] text-[#898989] border-[#242424]'
               }`}
+              style={{
+                borderColor: selectedCategory === cat.id ? cat.color : '#242424',
+                color: selectedCategory === cat.id ? cat.color : '#898989'
+              }}
             >
-              {f.label}
+              {cat.name}
             </button>
           ))}
         </div>
@@ -289,22 +344,21 @@ export function TodayView({
           className="text-xs text-[#3ECF8E] hover:underline flex items-center gap-1 font-semibold"
         >
           <Sparkles className="w-3.5 h-3.5" />
-          پیشنهاد برنامه با AI
+          برنامه‌ریزی هوشمند AI
         </button>
       </div>
 
-      {/* Tasks List */}
+      {/* 6. Tasks List (Lemoni-Style Cards) */}
       <div className="space-y-2.5">
         {filteredTasks.length === 0 ? (
           <div className="p-8 rounded-3xl bg-[#121212] border border-[#242424] text-center space-y-2">
             <CheckCircle2 className="w-10 h-10 text-[#3ECF8E]/40 mx-auto" />
-            <p className="text-sm font-bold text-[#FAFAFA]">هیچ وظیفه‌ای در این فیلتر یافت نشد!</p>
-            <p className="text-xs text-[#898989]">با دکمه بالا یا دستیار هوش مصنوعی برنامه‌ات را کامل کن.</p>
+            <p className="text-sm font-bold text-[#FAFAFA]">هیچ برنامه‌ای در این روز یا دسته نیست</p>
+            <p className="text-xs text-[#898989]">با کادر بالا یا دستیار هوش مصنوعی تسک جدیدت رو بنویس.</p>
           </div>
         ) : (
           filteredTasks.map((task) => {
             const categoryObj = categories.find(c => c.id === task.category) || categories[0];
-            const isExpanded = expandedTaskId === task.id;
             const completedSubtasks = task.subtasks ? task.subtasks.filter(s => s.completed).length : 0;
             const totalSubtasks = task.subtasks ? task.subtasks.length : 0;
 
@@ -318,9 +372,9 @@ export function TodayView({
             return (
               <div
                 key={task.id}
-                className={`p-4 rounded-2xl border transition-all duration-200 ${
+                className={`p-4 rounded-3xl border transition-all duration-200 ${
                   task.completed
-                    ? 'bg-[#121212]/60 border-[#242424] opacity-60'
+                    ? 'bg-[#121212]/60 border-[#242424] opacity-50'
                     : 'bg-[#171717] border-[#2E2E2E] hover:border-[#3ECF8E]/40 shadow-sm'
                 }`}
               >
@@ -345,12 +399,10 @@ export function TodayView({
                           {task.title}
                         </h4>
 
-                        {/* Priority Badge */}
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${priorityBadge.bg}`}>
                           {priorityBadge.text}
                         </span>
 
-                        {/* Category Tag */}
                         <span 
                           className="text-[10px] font-semibold px-2 py-0.5 rounded-full border"
                           style={{ 
@@ -367,7 +419,7 @@ export function TodayView({
                         <p className="text-xs text-[#898989] mt-1 line-clamp-2">{task.description}</p>
                       )}
 
-                      {/* Meta Footer */}
+                      {/* Meta info */}
                       <div className="flex items-center gap-3 mt-2 text-[11px] text-[#898989]">
                         {task.time && (
                           <span className="flex items-center gap-1 font-mono">
@@ -393,13 +445,11 @@ export function TodayView({
 
                   {/* Left: Quick Actions */}
                   <div className="flex items-center gap-1 shrink-0">
-                    
-                    {/* Launch Pomodoro for this task */}
                     {!task.completed && (
                       <button
                         onClick={() => onStartPomodoroForTask(task)}
                         className="p-2 rounded-xl bg-[#005936] hover:bg-[#006239] text-[#3ECF8E] border border-[#3ECF8E]/30 transition-all"
-                        title="شروع سشن تمرکز عمیق روی این تسک"
+                        title="شروع تمرکز عمیق روی این تسک"
                       >
                         <Play className="w-3.5 h-3.5 fill-[#3ECF8E]" />
                       </button>
@@ -424,7 +474,7 @@ export function TodayView({
 
                 </div>
 
-                {/* Expand Subtasks if any */}
+                {/* Subtasks */}
                 {totalSubtasks > 0 && (
                   <div className="mt-3 pt-2.5 border-t border-[#242424] space-y-1.5">
                     {task.subtasks.map((st) => (
@@ -443,20 +493,20 @@ export function TodayView({
         )}
       </div>
 
-      {/* Daily Affirmation / Quote Card */}
+      {/* 7. Lemoni Daily Motivation Card */}
       <div className="p-5 rounded-3xl bg-gradient-to-r from-[#171717] to-[#121212] border border-[#2E2E2E] relative overflow-hidden">
         <Quote className="absolute -bottom-2 -left-2 w-20 h-20 text-white/5 pointer-events-none" />
         
         <div className="flex items-center justify-between mb-2">
           <span className="text-[11px] font-bold text-[#3ECF8E] flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5" />
-            جمله و نگرش برنده روز
+            جمله انگیزشی روز
           </span>
           <button
             onClick={() => setQuoteIndex(prev => prev + 1)}
             className="text-[10px] text-[#898989] hover:text-white px-2 py-0.5 rounded-lg bg-[#242424]"
           >
-            جمله بعدی ↻
+            بعدی ↻
           </button>
         </div>
 
